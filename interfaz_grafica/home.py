@@ -3,6 +3,7 @@ import flet as ft
 def main(page: ft.Page):
     page.title = "JARDIN HAPPY FACE"
 
+
     def route_change(route):
         page.views.clear()
         page.views.append(
@@ -23,6 +24,7 @@ def main(page: ft.Page):
                     [
                         ft.AppBar(title=ft.Text("Store"), bgcolor=ft.colors.SURFACE_VARIANT),
                         ft.ElevatedButton("Go Home", on_click=lambda _: page.go("/")),
+                        
                     ],
                 )
             )

@@ -7,7 +7,7 @@
     - openpyxl==3.1.2
     - python-docx==1.1.0
     - mysql-connector-python==8.2.0
-    - flexx==0.8.4
+    - flet==0.17.0
 
 ## Configuración del Entorno
 
