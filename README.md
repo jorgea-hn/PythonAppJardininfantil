@@ -8,6 +8,7 @@
     - python-docx==1.1.0
     - mysql-connector-python==8.2.0
     - flet==0.17.0
+    - pyautogui==0.9.54
 
 ## Configuración del Entorno
 
