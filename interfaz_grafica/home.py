@@ -1,5 +1,5 @@
 import flet as ft
-
+# apertura del programa 
 def main(page: ft.Page):
 
     page.window_width=1366+15
