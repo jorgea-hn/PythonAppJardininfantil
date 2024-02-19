@@ -35,14 +35,7 @@ def main(page: ft.Page):
     
     def llamar_datos_matricula(self):
 
-        # estudiante=[nombre_estudiante.value,fecha_nacimiento.value,edad.value,documento.value,tipo_documento.value,grado.value,tipo_sangre.value,alergia.value,eps.value,numero_emergencia.value]
-        # padre=[nombre_padre.value,profesion_padre.value,cedula_padre.value,direccion_padre.value]
-        # madre=[nombre_madre.value,profesion_madre.value,cedula_madre.value,direccion_madre.value]
-        # acudiente=[nombre_acudiente.value,profesion_acudiente.value,cedula_acudiente.value,direccion_acudiente.value]
         
-        # matricula_value=[estudiante,padre,madre,acudiente]
-        # matriculados.append(matricula_value)
-
 
         estudiante=[nombre_estudiante,fecha_nacimiento,edad,documento,tipo_documento,grado,tipo_sangre,alergia,eps,numero_emergencia]
         padre=[nombre_padre,profesion_padre,cedula_padre,direccion_padre]
@@ -51,7 +44,7 @@ def main(page: ft.Page):
         
         matricula_obj=[estudiante,padre,madre,acudiente]
 
-        nombre_estudiante.value
+        
 
         mensaje_maticula_correcta.title=ft.Text(
             f"El estudiante {nombre_estudiante.value} se a matriculado correctamente",
@@ -61,6 +54,7 @@ def main(page: ft.Page):
         
 
         matricula_value=[]
+        
         for i in range (len(matricula_obj)):
             
             if i==3:
@@ -73,11 +67,83 @@ def main(page: ft.Page):
                 matricula_obj[i][j].value=""
 
         print(matriculados)
+        
+        page.update()
+
+    pagos=[]
+    def llamar_datos_pagos(self):
+
+        if cantidad_pago.value.isnumeric():
+
+            cantidad_pago.value=float(cantidad_pago.value)
+
+            mensaje_pago_correcta.title=ft.Row([ft.Text(
+                f"El pago se genero correctamente",
+                font_family="Alice"
+                ),ft.Text(),
+                ft.Image(src="img/congrats.png")])
+            
+            mensaje_pago_correcta.open=True
+
+
+            pagos.append(nombre_pago.value)
+            pagos.append(mes_pago.value)
+            pagos.append(cantidad_pago.value)
+
+        else:
+            mensaje_pago_correcta.title=ft.Row([ft.Text(
+                f"Solo puede ingresar valores numericos",
+                font_family="Alice"
+                ),ft.Text(),
+                ft.Image(src="img/congrats.png")])
+            
+            mensaje_pago_correcta.open=True
+
+        nombre_pago.value=""
+        cantidad_pago.value=""
+        mes_pago.value=""
 
         page.update()
 
-        
+    def mostrar_mensualidad(self):
+            
+        tabla_mensualidad.rows.append(ft.DataRow(
+            cells=[
+                
+                ft.DataCell(ft.Text(1)),
+                ft.DataCell(ft.Text(pagos[0])),
+                ft.DataCell(ft.Text(pagos[1])),
+                ft.DataCell(ft.Text(pagos[2])),
+                ft.DataCell(ft.IconButton(icon=ft.icons.DELETE, icon_color="red")),
+                
+            ],
+        ),)
+            
+            
+        page.update()
 
+
+    def mostrar_maticulados(self):
+
+        tabla_matriculados.rows.clear()
+        for i in range(len(matriculados)):
+                
+                tabla_matriculados.rows.append(ft.DataRow(
+                cells=[
+                    
+                    ft.DataCell(ft.Text(1)),
+                    ft.DataCell(ft.Text(matriculados[i][0])),
+                    ft.DataCell(ft.Text(matriculados[i][5])),
+                    ft.DataCell(ft.IconButton(icon=ft.icons.EDIT, icon_color="blue")),
+                    ft.DataCell(ft.IconButton(icon=ft.icons.DELETE, icon_color="red")),
+                    
+                ],
+            ),)
+                
+                
+                page.update()
+
+    
 
         
         
@@ -525,8 +591,10 @@ def main(page: ft.Page):
                         shape=ft.RoundedRectangleBorder(radius=0),
                         bgcolor=colores[3],
                         color="Black",  
-                    ),height=60,width=160,on_click=lambda _: page.go("/Matriculados"))
+                    ),height=60,width=160,on_click=lambda _: page.go("/Matriculados")),
+        
     ]),
+    
 
     margin=ft.margin.only(top=50)
     )
@@ -1011,40 +1079,269 @@ def main(page: ft.Page):
                 )
         ],spacing=0)
     
-    alumno=ft.Column()
+    tabla_matriculados= ft.DataTable(
+        horizontal_lines=ft.border.BorderSide(0.3,ft.colors.GREY),
+        vertical_lines=ft.border.BorderSide(0.3,ft.colors.GREY),
+        width=1366,
+        heading_row_color=ft.colors.BLACK12,
+        
+        columns=[
+            ft.DataColumn(ft.Text("ID",font_family="Alice"),),
+            ft.DataColumn(ft.Text("Nombre",font_family="Alice")),
+            ft.DataColumn(ft.Text("Grado",font_family="Alice")),
+            ft.DataColumn(ft.Text("Editar",font_family="Alice")),
+            ft.DataColumn(ft.Text("Eliminar",font_family="Alice"))
 
-    def mostrar(self):
-        print(matriculados)
-        alumno.clean()
-        for i in range(len(matriculados)):
-                
-                alumno.controls.append(ft.Row([
-                    ft.Text(f"nombre estudiante: {matriculados[i][0]}  "),
-                    ft.Text(f"grado: {matriculados[i][5]}")
-                    
-                ]
-                    ))
-                
-                
-                page.update()
+        ],
+
+        rows=[
+            
+
+        ]
+    )
+    
 
     vista_matriculados=ft.Container(
 
         content=ft.Column([
             encabezado,
-            ft.ElevatedButton("prueba",on_click=mostrar),
-            alumno
+            ft.ElevatedButton("mostrar matriculados",on_click=mostrar_maticulados),
+            tabla_matriculados
+                
+        ],
+        height=600,
+        scroll=ft.ScrollMode.ALWAYS)
+    )
+    
+
+# -------------------------Pagos----------------------------  
+
+
+    nombre_pago=ft.TextField(
+
+        bgcolor=colores[3],
+        border_color=ft.colors.TRANSPARENT,
+        height=35,content_padding=5,
+        text_size=20, 
+        text_style=ft.TextStyle(font_family="Alice"),
+        width=500
+        )
+    
+    cantidad_pago=ft.TextField(
+
+        bgcolor=colores[3],
+        border_color=ft.colors.TRANSPARENT,
+        height=35,content_padding=5,
+        text_size=20, 
+        text_style=ft.TextStyle(font_family="Alice"),
+        width=500
+        )
+    
+    mes_pago=ft.TextField(
+
+        bgcolor=colores[3],
+        border_color=ft.colors.TRANSPARENT,
+        height=35,content_padding=5,
+        text_size=20, 
+        text_style=ft.TextStyle(font_family="Alice"),
+        width=500
+        )
+    
+    mensaje_pago_correcta=ft.AlertDialog()
+
+
+    titulo_pago=(ft.Container(ft.Text(
+                    "Pagos",
+                    text_align=ft.TextAlign.CENTER,
+                    font_family="Alice",
+                    
+                    size=25,
+                    weight="BOLD",
+    
+                ),width=300,bgcolor=colores[2],margin=ft.margin.only(left=250,right=250)))
+    
+    datos_pago=(ft.Container(
+                content=ft.Column([
+                    
+                    ft.Container(ft.Row([
+
+                        ft.Text("Nombre:  ",font_family="Alice",size=20),
+                        nombre_pago],
+                        ),margin=ft.margin.only(left=50,right=50,bottom=5),
+                        ),
+                    
+                    ft.Container(ft.Row([
+                        ft.Text("Cantidad:",font_family="Alice",size=20),
+                        cantidad_pago]),margin=ft.margin.only(left=50,right=50,bottom=5),),
+
+                    ft.Container(ft.Row([
+                        ft.Text("Mes:          ",font_family="Alice",size=20),
+                        mes_pago]),margin=ft.margin.only(left=50,right=50,bottom=5),)
+
+                ]),bgcolor=colores[2],padding=ft.padding.only(top=50,bottom=30)
+            ))
+        
+    botones_pago=(ft.Container(content=ft.Row([
+
+                ft.Container(
+                    ft.TextButton(
+                        "Generar Pago",
+                        height=50,
+
+                        width=300,
+                        on_click=llamar_datos_pagos,
+
+                        style=ft.ButtonStyle(
+                                                
+                            shape=ft.RoundedRectangleBorder(radius=0),
+                            bgcolor="#7ED957",
+                            color="Black",
+                        ),
+                        
+
+                    ),
+                    width=400,
+                    alignment=ft.alignment.center,
+                    margin=ft.margin.only(top=30,bottom=20)),
+                    
+                    ft.Container(
+                    ft.TextButton(
+                        "Ir a mensualidades",
+                        height=50,
+
+                        width=300,
+                        on_click=lambda _: page.go("/Mensualidad"),
+
+                        style=ft.ButtonStyle(
+                                                
+                            shape=ft.RoundedRectangleBorder(radius=0),
+                            bgcolor="#7ED957",
+                            color="Black",
+                        ),
+                        
+
+                    ),
+                    width=400,
+                    alignment=ft.alignment.center,
+                    margin=ft.margin.only(top=30,bottom=20)),
+                    mensaje_pago_correcta,
+                    
+
+                    
+                ],spacing=0))
+)
+    vista_pago=ft.Container(
+        
+
+        content=ft.Column([
+            titulo_pago,
+            datos_pago,
+            botones_pago
+
+            
+        ],spacing=0),width=800,alignment=ft.alignment.center
+        
+    )
+
+# -----------------------Mensualidades----------------------------
+    
+
+    subtitulo_Mensualidad= ft.Container(content=ft.Row([
+
+        ft.TextButton(
+            text="Mensualidad",
+            style=ft.ButtonStyle(
+                shape=ft.RoundedRectangleBorder(radius=0),
+                bgcolor=colores[2],
+                color="Black",
+                
+                ),
+                height=60, width=160,on_click= lambda _:page.go("/Mensualidad")),
+
+
+        ft.Container(ft.TextButton(
+
+            text="Registrar pago",
+            height=40,
+            width=196,
+            on_click= lambda _:page.go("/Pagos"),
+            style=ft.ButtonStyle(
+                shape=ft.RoundedRectangleBorder(radius=0),
+                bgcolor="#7ED957",
+                color="Black",
+                
+            )
+
+
+        ),margin=ft.margin.only(left=950)),
+        
+        ]),
+        margin=ft.margin.only(top=50)
+    )
+
+
+    encabezado_mensualidad=ft.Column([
+
+
+
+        subtitulo_Mensualidad,
+
+        ft.Container(
+            ft.Text("   Estudiante",font_family="Alice",size=25),
+            alignment=ft.alignment.center_left,
+            bgcolor=colores[2],
+            margin=ft.margin.only(bottom=5)
+            )
+        ],spacing=0)
+    
+
+    tabla_mensualidad=ft.DataTable(
+        horizontal_lines=ft.border.BorderSide(0.3,ft.colors.GREY),
+        vertical_lines=ft.border.BorderSide(0.3,ft.colors.GREY),
+        width=1366,
+        heading_row_color=ft.colors.BLACK12,
+        
+        columns=[
+            ft.DataColumn(ft.Text("ID",font_family="Alice"),),
+            ft.DataColumn(ft.Text("Nombre",font_family="Alice")),
+            ft.DataColumn(ft.Text("Mes",font_family="Alice")),
+            ft.DataColumn(ft.Text("Monto",font_family="Alice")),
+            
+
+        ],
+
+        rows=[
+            
+
+        ]
+    )
+    
+    
+    vista_mensualidad=ft.Container(
+
+
+        content=ft.Column([
+            encabezado_mensualidad,
+            ft.ElevatedButton("Mostrar mensualidad",on_click=mostrar_mensualidad),
+            tabla_mensualidad
+            
                 
 
         ],
         height=600,
         scroll=ft.ScrollMode.ALWAYS)
     )
+
+
     
-    # page.add(barra_navegacion,vista_matriculados)
     
-        
-# ---------------Enrutado-----------------
+    
+
+
+    # page.add(barra_navegacion,vista_mensualidad)
+    
+
+# -------------Enrutado-----------------
     
     def route_change(route):
         vista1=ft.View(
@@ -1097,7 +1394,7 @@ def main(page: ft.Page):
                     "/Matriculados",
                     [
                         vista_matriculados
-                    ],appbar=barra_navegacion
+                    ],appbar=barra_navegacion,padding=0
                 )
             )
             
@@ -1109,10 +1406,9 @@ def main(page: ft.Page):
                     "/Boletines",
                     [
                         ft.Text("Boletines")
-                    ],appbar=barra_navegacion
+                    ],appbar=barra_navegacion,padding=0
                 )
             )
-        
 
         if page.route == "/Mensualidad":
             page.views.clear()
@@ -1120,8 +1416,22 @@ def main(page: ft.Page):
                 ft.View(
                     "/Mensualidad",
                     [
-                        ft.Text("mensualidad")
-                    ],appbar=barra_navegacion
+                        vista_mensualidad,
+                        ft.TextButton("Mensualidad",on_click=lambda _: page.go("/Pagos"))
+                        
+                    ],appbar=barra_navegacion,padding=0
+                )
+            )
+        
+
+        if page.route == "/Pagos":
+            page.views.clear()
+            page.views.append(
+                ft.View(
+                    "/Pagos",
+                    [
+                        vista_pago
+                    ],appbar=barra_navegacion,padding=0,vertical_alignment=ft.MainAxisAlignment.CENTER,horizontal_alignment=ft.CrossAxisAlignment.CENTER
                 )
             )
         
@@ -1141,7 +1451,7 @@ def main(page: ft.Page):
 
 ft.app(target=main) # para visualizar en escritorio
 
-# ft.app(target=main, view=ft.AppView.WEB_BROWSER, port=8550) # para visualizar en navegador
+# # ft.app(target=main, view=ft.AppView.WEB_BROWSER, port=8550) # para visualizar en navegador
 
 
 
