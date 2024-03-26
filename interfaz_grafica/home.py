@@ -1,4 +1,15 @@
 import flet as ft
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from base_de_datos import db
+
+db.create_database()
+db.conection_db()
+db.create_table_estudiantes()
+db.create_table_mensualidades()
+
 # apertura del programa 
 def main(page: ft.Page):
 
@@ -17,8 +28,6 @@ def main(page: ft.Page):
     page.title = "JARDIN HAPPY FACE"
 
 
-    
-
     colores=("#D5EAF8","#FC2D2B","#A3A3A3","#D9D9D9")
     #0(azul claro), 1(rojo), 2(gris),3(gris claro)   
     
@@ -27,76 +36,64 @@ def main(page: ft.Page):
         if usuario.value=="" and Contraseña.value=="":
             print("si funciona")
             page.go("/principal")
-
-            
         else:
             print("no valido")
 
-    
     def llamar_datos_matricula(self):
+        # estudiante=[nombre_estudiante,fecha_nacimiento,edad,documento,tipo_documento,grado,tipo_sangre,alergia,eps,numero_emergencia]
+        # padre=[nombre_padre,profesion_padre,cedula_padre,direccion_padre,telefono_padre]
+        # madre=[nombre_madre,profesion_madre,cedula_madre,direccion_madre,telefono_madre]
+        # acudiente=[nombre_acudiente,profesion_acudiente,cedula_acudiente,direccion_acudiente,telefono_acudiente]
+        # matricula_obj=[estudiante,padre,madre,acudiente]
 
-        
-
-        estudiante=[nombre_estudiante,fecha_nacimiento,edad,documento,tipo_documento,grado,tipo_sangre,alergia,eps,numero_emergencia]
-        padre=[nombre_padre,profesion_padre,cedula_padre,direccion_padre]
-        madre=[nombre_madre,profesion_madre,cedula_madre,direccion_madre]
-        acudiente=[nombre_acudiente,profesion_acudiente,cedula_acudiente,direccion_acudiente]
-        
-        matricula_obj=[estudiante,padre,madre,acudiente]
-
-        
+        db.add_student(nombre_estudiante.value,"2024",edad.value,fecha_nacimiento.value,tipo_sangre.value,eps.value,tipo_documento.value,documento.value, grado.value,alergia.value,numero_emergencia.value,
+        nombre_padre.value,profesion_padre.value,numero_emergencia.value, direccion_padre.value, cedula_padre.value,
+        nombre_madre.value,profesion_madre.value,numero_emergencia.value, direccion_madre.value, cedula_madre.value,
+        nombre_acudiente.value,profesion_acudiente.value,numero_emergencia.value, direccion_acudiente.value, cedula_acudiente.value)
 
         mensaje_maticula_correcta.title=ft.Text(
             f"El estudiante {nombre_estudiante.value} se a matriculado correctamente",
             font_family="Alice"
             )
         mensaje_maticula_correcta.open=True
-        
 
-        matricula_value=[]
-        
-        for i in range (len(matricula_obj)):
-            
-            if i==3:
-                matriculados.append(matricula_value)
-                
-            for j in range (len(matricula_obj[i])):
-                datos=matricula_obj[i][j].value
-                matricula_value.append(datos)
+        # matricula_value=[]
+        # for i in range (len(matricula_obj)):
+        #     if i==3:
+        #         matriculados.append(matricula_value)
+        #     for j in range (len(matricula_obj[i])):
+        #         datos=matricula_obj[i][j].value
+        #         matricula_value.append(datos)
+        #         matricula_obj[i][j].value=""
+        # print(matriculados)
 
-                matricula_obj[i][j].value=""
-
-        print(matriculados)
-        
         page.update()
 
-    pagos=[]
+
+    # pagos=[]
     def llamar_datos_pagos(self):
 
         if cantidad_pago.value.isnumeric():
-
             cantidad_pago.value=float(cantidad_pago.value)
-
             mensaje_pago_correcta.title=ft.Row([ft.Text(
                 f"El pago se genero correctamente",
                 font_family="Alice"
                 ),ft.Text(),
-                ft.Image(src="img/congrats.png")])
+                ft.Image(src="./interfaz_grafica/img/congrats.png")])
             
             mensaje_pago_correcta.open=True
 
-
-            pagos.append(nombre_pago.value)
-            pagos.append(mes_pago.value)
-            pagos.append(cantidad_pago.value)
+            db.add_mensualidad(nombre_pago.value,mes_pago.value,cantidad_pago.value)
+            # pagos.append(nombre_pago.value)
+            # pagos.append(mes_pago.value)
+            # pagos.append(cantidad_pago.value)
 
         else:
             mensaje_pago_correcta.title=ft.Row([ft.Text(
                 f"Solo puede ingresar valores numericos",
                 font_family="Alice"
                 ),ft.Text(),
-                ft.Image(src="img/congrats.png")])
-            
+                ft.Image(src="./interfaz_grafica/img/congrats.png")])
             mensaje_pago_correcta.open=True
 
         nombre_pago.value=""
@@ -106,7 +103,8 @@ def main(page: ft.Page):
         page.update()
 
     def mostrar_mensualidad(self):
-            
+        
+        pagos = db.get_all_mensualidades()
         tabla_mensualidad.rows.append(ft.DataRow(
             cells=[
                 
@@ -124,16 +122,16 @@ def main(page: ft.Page):
 
 
     def mostrar_maticulados(self):
-
+        matriculados = db.get_all_students()
         tabla_matriculados.rows.clear()
         for i in range(len(matriculados)):
                 
                 tabla_matriculados.rows.append(ft.DataRow(
                 cells=[
                     
-                    ft.DataCell(ft.Text(1)),
                     ft.DataCell(ft.Text(matriculados[i][0])),
-                    ft.DataCell(ft.Text(matriculados[i][5])),
+                    ft.DataCell(ft.Text(matriculados[i][1])),
+                    ft.DataCell(ft.Text(matriculados[i][6])),
                     ft.DataCell(ft.IconButton(icon=ft.icons.EDIT, icon_color="blue")),
                     ft.DataCell(ft.IconButton(icon=ft.icons.DELETE, icon_color="red")),
                     
@@ -157,7 +155,7 @@ def main(page: ft.Page):
             
     imagen = ft.Container(
             
-            content = ft.Image(src="img/logo.png",width=450,height=500,expand=True),
+            content = ft.Image(src="./interfaz_grafica/img/logo.png",width=450,height=500,expand=True),
             alignment=ft.alignment.center,
             expand=True,
             width=500
@@ -239,7 +237,7 @@ def main(page: ft.Page):
         leading=ft.Container(
 
             ft.Image(
-                src="img/logo1.png",width=150,
+                src="./interfaz_grafica/img/logo1.png",width=150,
                 height=100
             ),
             margin=ft.margin.only(left=31,top=0,right=0,bottom=0)
@@ -309,7 +307,7 @@ def main(page: ft.Page):
 # ---------------Bienvenido-----------------
     imagen_bienvenida=ft.Container(
             
-            content = ft.Image(src="img/welcome.png",width=300,height=300),
+            content = ft.Image(src="./interfaz_grafica/img/welcome.png",width=300,height=300),
             alignment=ft.alignment.center
         )
     

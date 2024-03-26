@@ -1,8 +1,7 @@
 #Conexion a la base de datos
 import mysql.connector
 import datetime
-from config import DB_HOST,DB_USER,DB_PASSWORD,DB_NAME
-
+from .config import DB_HOST,DB_USER,DB_PASSWORD,DB_NAME
 
 # Conexion a la base de datos
 def conection_db():
@@ -23,22 +22,22 @@ def get_year_now():
     return str(now.year)
 
 
-# def create_database():
-#     try:
-#         conexion = mysql.connector.connect(
-#             host=DB_HOST,
-#             user=DB_USER,
-#             password=DB_PASSWORD
-#         )
-#         cursor = conexion.cursor()
-#         cursor.execute(f"CREATE DATABASE IF NOT EXISTS {DB_NAME};")
-#         print(f"Base de datos '{DB_NAME}' creada exitosamente.")
-#     except mysql.connector.Error as err:
-#         print(f"Error al crear la base de datos: {err}")
-#     finally:
-#         if 'conexion' in locals() and conexion.is_connected():
-#             cursor.close()
-#             conexion.close()
+def create_database():
+    try:
+        conexion = mysql.connector.connect(
+            host=DB_HOST,
+            user=DB_USER,
+            password=DB_PASSWORD
+        )
+        cursor = conexion.cursor()
+        cursor.execute(f"CREATE DATABASE IF NOT EXISTS {DB_NAME};")
+        print(f"Base de datos '{DB_NAME}' creada exitosamente.")
+    except mysql.connector.Error as err:
+        print(f"Error al crear la base de datos: {err}")
+    finally:
+        if 'conexion' in locals() and conexion.is_connected():
+            cursor.close()
+            conexion.close()
 
 def create_table_estudiantes():
     conexion = conection_db()
@@ -84,7 +83,7 @@ def add_student(name, year,age,  date_of_birth, blood_type, eps, document, docum
     year_now = get_year_now()
     consulta = '''
     INSERT INTO estudiantes (name, year,age, date_of_birth, blood_type, eps, document, document_type, grade, allergy, emergency_number, father, father_profession, father_number, father_address, father_cc, mother, mother_profession, mother_number, mother_address, mother_cc, guardian, guardian_profession, guardian_number, guardian_address, guardian_cc)
-    VALUES (%s, %s,%s,%s, %s,  %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    VALUES (%s, %s,%s,%s, %s,  %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s)
     '''
     datos = (name, year_now,age,  date_of_birth, blood_type, eps, document, document_type, grade, allergy, emergency_number, father, father_profession, father_number, father_address, father_cc, mother, mother_profession, mother_number, mother_address, mother_cc, guardian, guardian_profession, guardian_number, guardian_address, guardian_cc)
     cursor.execute(consulta, datos)
@@ -153,7 +152,7 @@ def create_table_mensualidades():
     conexion = conection_db()
     cursor = conexion.cursor()
     cursor.execute('''
-    CREATE TABLE IF NOT EXISTS pagos (
+    CREATE TABLE IF NOT EXISTS mensualidades (
         id INT AUTO_INCREMENT PRIMARY KEY,
         id_estudiante INT,
         mes VARCHAR(20),
@@ -186,7 +185,6 @@ def get_all_mensualidades():
     FROM mensualidades m
     JOIN estudiantes e ON m.id_estudiante = e.id
     '''
-
     cursor.execute(consulta)
     mensualidades = cursor.fetchall()
 
